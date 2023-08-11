@@ -16,11 +16,12 @@ s3_folder: "" # folder in the bucket where the feeds are stored
 local_feed_path: "feeds" # folder where the feeds will be downloaded to
 product_name: "Integrated Methane Inversion" # name of the product to get subscribers for
 download_data_feeds: True # whether to download the data feeds from S3
+cleanup_feeds: True # whether to delete the downloaded feeds after outputting csv
 ```
 
 Then run the script:
 ```
-$ python3 join_feeds.py
+$ python join_feeds.py
 ```
 
-Results will be saved to a csv file.
+Results will be saved to an output csv file.

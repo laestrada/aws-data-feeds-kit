@@ -1,7 +1,8 @@
 import os
-import pandas as pd
-import boto3
 import yaml
+import boto3
+import shutil
+import pandas as pd
 
 
 # get files below path
@@ -25,6 +26,15 @@ def join_files_to_df(path, dup_drop=[]):
     if len(dup_drop) > 0:
         df = df.drop_duplicates(subset=dup_drop)
     return df
+
+
+# delete given directory path and contents
+def delete_directory(directory_path):
+    try:
+        shutil.rmtree(directory_path)
+        print(f"Directory '{directory_path}' has been successfully deleted.")
+    except OSError as e:
+        print(f"Error deleting directory '{directory_path}': {e}")
 
 
 # download files recursively from s3
@@ -108,17 +118,19 @@ def get_user_info(base_path, product_name):
 # Specify options in config.yml file
 ###############################################
 config = yaml.safe_load(open("config.yml"))
-bucket_name = "imi-subscribers"
-s3_folder = ""
-local_path = "feeds"
-product_name = "Integrated Methane Inversion"
-download_data_feeds = False
 
-if download_data_feeds:
+# optionally download data feeds from s3
+if config["download_data_feeds"]:
     download_s3_folder(
         config["s3_bucket_name"], config["s3_folder"], config["local_feed_path"]
     )
+
+# join feeds to match product name to user information
 user_info = get_user_info(config["local_feed_path"], config["product_name"])
-user_info.to_csv(
-    f"user_info_{config['product_name'].replace(' ', '_')}.csv", index=False
-)
+
+# output csv of user info
+user_info.to_csv(f"output_{config['product_name'].replace(' ', '_')}.csv", index=False)
+
+# optionally delete data feeds after outputting csv
+if config["cleanup_feeds"]:
+    delete_directory(config["local_feed_path"])
