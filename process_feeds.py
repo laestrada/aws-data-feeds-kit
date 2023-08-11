@@ -5,6 +5,18 @@ import shutil
 import pandas as pd
 
 
+# return true if path is empty or does not exist
+def available_file_path(path):
+    if os.path.exists(path) and not os.path.isfile(path):
+        # Checking if the directory is empty or not
+        if not os.listdir(path):
+            return True
+        else:
+            return False
+    else:
+        return True
+
+
 # get files below path
 def compile_file_list(path):
     file_list = []
@@ -30,6 +42,7 @@ def join_files_to_df(path, dup_drop=[]):
 
 # delete given directory path and contents
 def delete_directory(directory_path):
+    print(f"Deleting directory '{directory_path}'...")
     try:
         shutil.rmtree(directory_path)
         print(f"Directory '{directory_path}' has been successfully deleted.")
@@ -39,6 +52,13 @@ def delete_directory(directory_path):
 
 # download files recursively from s3
 def download_s3_folder(bucket_name, s3_folder, local_path):
+    if not available_file_path(local_path):
+        error = (
+            f"Local path '{local_path}' contains files."
+            + " Please delete files or specify a different local path."
+        )
+        raise Exception(error)
+
     print(f"Downloading s3://{bucket_name}/{s3_folder} to {local_path}...")
     s3 = boto3.client("s3")
 
@@ -114,7 +134,9 @@ def get_user_info(base_path, product_name):
         right_on="address_id",
     ).drop_duplicates(subset=["title", "aws_account_id"])
     result = result.loc[result["title"] == product_name]
-    print(f"Finished processing {product_name} data feeds. {result.shape[0]} unique rows found.")
+    print(
+        f"Finished processing {product_name} data feeds. {result.shape[0]} unique rows found."
+    )
 
     return result.drop(columns=["address_id", "mailing_address_id"])
 
@@ -139,3 +161,4 @@ user_info.to_csv(f"output_{config['product_name'].replace(' ', '_')}.csv", index
 # optionally delete data feeds after outputting csv
 if config["cleanup_feeds"]:
     delete_directory(config["local_feed_path"])
+print("Done.")

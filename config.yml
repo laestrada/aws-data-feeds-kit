@@ -3,4 +3,4 @@ s3_folder: ""
 local_feed_path: "feeds"
 product_name: "Integrated Methane Inversion"
 download_data_feeds: False
-cleanup_feeds: False
+cleanup_feeds: True
