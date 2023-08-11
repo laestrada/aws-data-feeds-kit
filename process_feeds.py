@@ -39,10 +39,12 @@ def delete_directory(directory_path):
 
 # download files recursively from s3
 def download_s3_folder(bucket_name, s3_folder, local_path):
+    print(f"Downloading s3://{bucket_name}/{s3_folder} to {local_path}...")
     s3 = boto3.client("s3")
 
     # List all objects in the S3 folder
     objects = s3.list_objects_v2(Bucket=bucket_name, Prefix=s3_folder)
+    file_count = 0
 
     # Recursively download each object
     for obj in objects.get("Contents", []):
@@ -59,12 +61,14 @@ def download_s3_folder(bucket_name, s3_folder, local_path):
 
         # Download the file
         s3.download_file(bucket_name, s3_key, local_file_path)
+        file_count += 1
 
-        print(f"Downloaded: s3://{bucket_name}/{s3_key} to {local_file_path}")
+    print(f"Finished AWS Download of {file_count} files.")
 
 
 # extract user info from data feeds and join to product name
 def get_user_info(base_path, product_name):
+    print(f"Processing {product_name} data feeds...")
     tables = [
         "AccountFeed_V1",
         "AddressFeed_V1",
@@ -109,9 +113,10 @@ def get_user_info(base_path, product_name):
         left_on="mailing_address_id",
         right_on="address_id",
     ).drop_duplicates(subset=["title", "aws_account_id"])
-    result = result.drop(columns=["address_id", "mailing_address_id"])
+    result = result.loc[result["title"] == product_name]
+    print(f"Finished processing {product_name} data feeds. {result.shape[0]} unique rows found.")
 
-    return result.loc[result["title"] == product_name]
+    return result.drop(columns=["address_id", "mailing_address_id"])
 
 
 ###############################################

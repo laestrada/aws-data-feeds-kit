@@ -21,7 +21,7 @@ cleanup_feeds: True # whether to delete the downloaded feeds after outputting cs
 
 Then run the script:
 ```
-$ python join_feeds.py
+$ python process_feeds.py
 ```
 
 Results will be saved to an output csv file.
