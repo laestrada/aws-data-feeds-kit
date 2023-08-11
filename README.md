@@ -1,8 +1,8 @@
 # Data Feeds Kit
-Handy python tool for joining tables from AWS marketplace to get information on subscribers to aws marketplace products.
+Handy python tool for joining tables from AWS marketplace to get information on subscribers to aws marketplace products. Currently tuned for the Integrated Methane Inversion product.
 
 ## Requirements
-- Python 3.6+
+- Python 3.11+
     - pandas
     - boto3
 - AWS CLI with credentials configured for access to relevant S3 bucket
